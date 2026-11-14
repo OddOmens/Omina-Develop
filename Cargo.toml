@@ -1,0 +1,49 @@
+# Develop workspace: a Lightroom-style photo editor that sits beside Studio and Canvas. One photo
+# per document, edited without ever changing its pixels. The engine crate lives in `crates/`, the
+# desktop app in `apps/`. The engine never depends on the UI, so photos can be rendered and
+# exported headless.
+[workspace]
+resolver = "3"
+members = ["crates/*", "apps/*"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.90"
+publish = false
+license = "GPL-3.0-or-later"
+authors = ["Odd Omens LLC"]
+
+[workspace.dependencies]
+develop-core = { path = "crates/develop-core" }
+# Pinned exactly, as in Studio and Canvas: GPUI is pre-1.0, so upgrades are deliberate.
+gpui-kit = "=0.8.1"
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp", "gif", "bmp", "tiff"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["float_roundtrip"] }
+rayon = "1"
+# Iris, the assistant shared with Studio and Canvas: her name, her help knowledge and how
+# questions find answers. It lives in Studio's repository.
+iris = { path = "../Omina Motion/crates/iris" }
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
+
+# Dependencies are optimized even in debug builds, so developing photos stays quick while working.
+[profile.dev.package."*"]
+opt-level = 2
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = 3
+strip = true
+panic = "abort"
+
+# The engine develops photos on every slider move; unoptimized it would be far too slow to judge
+# the app by, so it is optimized in debug builds too.
+[profile.dev.package.develop-core]
+opt-level = 3

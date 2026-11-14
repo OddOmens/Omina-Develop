@@ -1,0 +1,20 @@
+[package]
+name = "develop-core"
+description = "Develop's engine: Lightroom-style photo settings, crop and straighten, masks, presets and the .develop file format. No UI."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+rayon.workspace = true
+image.workspace = true
+# The .develop file: a zip holding the edit as JSON, the original photo and a preview.
+zip = { version = "=1.3.1", default-features = false, features = ["deflate"] }
+
+[lints]
+workspace = true

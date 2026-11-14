@@ -1,0 +1,42 @@
+[package]
+name = "develop"
+description = "Develop desktop app: Lightroom-style photo editing, one photo at a time, beside Omina Motion and Omina Edit."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+develop-core.workspace = true
+iris.workspace = true
+gpui-kit.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+rayon.workspace = true
+# The same image library GPUI uses, for handing it rendered pictures.
+image.workspace = true
+
+# Packaging into Develop.app with cargo-packager (the same setup as Studio and Canvas).
+[package.metadata.packager]
+product-name = "Omina Develop"
+identifier = "com.oddomens.develop"
+publisher = "Odd Omens LLC"
+category = "Photography"
+description = "Lightroom-style photo editing: white balance, tone, color, detail, crop and straighten, masks, presets and snapshots."
+copyright = "Copyright © 2026 Odd Omens LLC. Free software under the GNU GPL, version 3 or later."
+license-file = "../../LICENSE"
+out-dir = "../../target/packages"
+binaries-dir = "../../target/release"
+binaries = [{ path = "develop", main = true }]
+resources = ["../../LICENSE"]
+
+[package.metadata.packager.macos]
+minimum-system-version = "13.0"
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+gpui-kit = { workspace = true, features = ["test-support"] }

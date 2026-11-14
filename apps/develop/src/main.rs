@@ -1,0 +1,53 @@
+//! Develop desktop app: window setup and startup. The editor itself lives in `workspace`, its
+//! state in `state`, the background rendering in `preview`, and each panel in `panels`.
+
+mod app_settings;
+mod assets;
+mod commands;
+mod features;
+mod keymap;
+mod panels;
+mod preview;
+mod project_files;
+mod recovery;
+mod state;
+mod theme;
+mod workspace;
+
+#[cfg(test)]
+mod ui_tests;
+
+use gpui_kit::{App, AppContext as _, Bounds, TitlebarOptions, WindowBounds, WindowOptions, point, px, size};
+
+fn main() {
+    // Developing runs on rayon's threads; give them roomy stacks so deep splits of big photos
+    // never run out.
+    if let Err(error) = rayon::ThreadPoolBuilder::new().stack_size(16 << 20).build_global() {
+        eprintln!("could not set up the worker threads: {error}");
+    }
+    gpui_kit::application().with_assets(assets::DevelopAssets).run(|cx: &mut App| {
+        // Must run before any component is used.
+        gpui_kit::init(cx);
+        let settings = app_settings::load();
+        theme::apply(settings.theme, settings.accent, cx);
+        workspace::bind_keys(cx);
+        cx.set_menus(workspace::menus());
+
+        // Where the window was last time, or centered at a comfortable size.
+        let window_bounds = match settings.window {
+            Some(placement) => {
+                let bounds = Bounds::new(point(px(placement.x), px(placement.y)), size(px(placement.width.max(1000.0)), px(placement.height.max(640.0))));
+                if placement.maximized { WindowBounds::Maximized(bounds) } else { WindowBounds::Windowed(bounds) }
+            }
+            None => WindowBounds::Windowed(Bounds::centered(None, size(px(1600.0), px(960.0)), cx)),
+        };
+        let options = WindowOptions {
+            window_bounds: Some(window_bounds),
+            window_min_size: Some(size(px(1000.0), px(640.0))),
+            titlebar: Some(TitlebarOptions { title: Some("Omina Develop".into()), ..Default::default() }),
+            ..Default::default()
+        };
+        gpui_kit::open_window(options, cx, |window, cx| cx.new(|cx| workspace::Workspace::new(window, cx))).expect("failed to open the Omina Develop window");
+        cx.activate(true);
+    });
+}
