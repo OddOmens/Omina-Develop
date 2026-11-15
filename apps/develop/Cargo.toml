@@ -27,6 +27,7 @@ category = "Photography"
 description = "Lightroom-style photo editing: white balance, tone, color, detail, crop and straighten, masks, presets and snapshots."
 copyright = "Copyright © 2026 Odd Omens LLC. Free software under the GNU GPL, version 3 or later."
 license-file = "../../LICENSE"
+icons = ["../../assets/icon/develop-512@2x.png", "../../assets/icon/develop-512.png", "../../assets/icon/develop-256@2x.png", "../../assets/icon/develop-256.png", "../../assets/icon/develop-128@2x.png", "../../assets/icon/develop-128.png", "../../assets/icon/develop-32@2x.png", "../../assets/icon/develop-32.png", "../../assets/icon/develop-16@2x.png", "../../assets/icon/develop-16.png"]
 out-dir = "../../target/packages"
 binaries-dir = "../../target/release"
 binaries = [{ path = "develop", main = true }]

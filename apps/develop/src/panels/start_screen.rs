@@ -125,18 +125,14 @@ pub(crate) fn accent_glow(height: f32) -> gpui_kit::Div {
     ))
 }
 
-/// Develop's mark: an aperture on an accent tile, `side` points square. (Studio's is a
-/// clapperboard and Canvas's a palette on the same tile.)
+/// The app icon's artwork, built into the app so the mark never has to be loaded from disk.
+static BRAND_MARK: std::sync::LazyLock<Arc<gpui_kit::Image>> = std::sync::LazyLock::new(|| {
+    Arc::new(gpui_kit::Image::from_bytes(gpui_kit::ImageFormat::Png, include_bytes!("../../../../assets/icon/mark.png").to_vec()))
+});
+
+/// Omina Develop's mark, the same artwork as the app icon, `side` points square.
 pub(crate) fn brand_mark(side: f32) -> gpui_kit::Div {
-    div()
-        .size(px(side))
-        .flex_none()
-        .rounded(px(side * 0.24))
-        .flex()
-        .items_center()
-        .justify_center()
-        .bg(linear_gradient(135.0, linear_color_stop(hsla(color::ACCENT), 0.0), linear_color_stop(hsla(color::ACCENT).opacity(0.7), 1.0)))
-        .child(Icon::new(IconName::Aperture).size(px(side * 0.56)).text_color(gpui_kit::white()))
+    div().size(px(side)).flex_none().child(gpui_kit::img(BRAND_MARK.clone()).size_full())
 }
 
 /// Develop's name on the left, and a button back to the photo on the right (when one is open).
