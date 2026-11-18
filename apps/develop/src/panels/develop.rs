@@ -138,7 +138,7 @@ fn text_button(id: &'static str, label: &'static str, tip: &'static str, on_clic
     use gpui_kit::component::button::Button;
     Button::new(id)
         .outline()
-        .xsmall()
+        .small()
         .label(label)
         .tooltip(tip)
         .on_click(cx.listener(move |this, _, _, cx| {

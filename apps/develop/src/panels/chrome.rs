@@ -212,6 +212,20 @@ pub fn icon_button(
         .on_click(on_click)
 }
 
+/// A dropdown that shows the current choice: an outlined button with the choice's name and a
+/// caret. Every dropdown in panels, dialogs and settings starts here, so they share one
+/// height, one text size and one look. Add `.dropdown_menu(...)` for its choices.
+pub fn dropdown(id: impl Into<ElementId>, label: impl Into<SharedString>) -> Button {
+    Button::new(id).outline().small().label(label.into()).dropdown_caret(true)
+}
+
+/// The same dropdown without an outline, for the bars above and below the canvas, where
+/// outlines would crowd the zoom and view controls. It keeps the height and text size of
+/// `dropdown`.
+pub fn bar_dropdown(id: impl Into<ElementId>, label: impl Into<SharedString>) -> Button {
+    Button::new(id).ghost().small().label(label.into()).dropdown_caret(true)
+}
+
 
 /// An element's window-space bounds as of the last frame, in plain pixels.
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
@@ -258,7 +272,7 @@ impl MeasuredBounds {
 /// The look every floating surface shares, so popups read as part of the editor: a panel's
 /// own color, the hairline border panels are divided by, and slightly rounded corners.
 pub fn popup_surface<E: Styled>(surface: E) -> E {
-    surface.bg(hsla(color::PANEL)).border_1().border_color(hsla(color::HAIRLINE)).rounded(px(size::POPUP_RADIUS)).shadow_lg()
+    surface.text_size(px(size::TEXT)).bg(hsla(color::PANEL)).border_1().border_color(hsla(color::HAIRLINE)).rounded(px(size::POPUP_RADIUS)).shadow_lg()
 }
 
 /// How every dialog appears and leaves: it fades in where it will sit, in the middle of the

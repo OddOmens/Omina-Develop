@@ -718,7 +718,7 @@ impl Workspace {
     pub fn editing_field(&self, target: EditTarget) -> Option<AnyElement> {
         use gpui_kit::component::Sizable as _;
         let editing = self.ui.editing.as_ref().filter(|editing| editing.target == target)?;
-        Some(gpui_kit::component::input::Input::new(&editing.input).xsmall().into_any_element())
+        Some(gpui_kit::component::input::Input::new(&editing.input).small().into_any_element())
     }
 
     /// Scrubs the field being dragged to `pointer_x`.

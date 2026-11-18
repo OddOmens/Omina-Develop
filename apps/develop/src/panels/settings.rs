@@ -150,7 +150,7 @@ fn page(section: Section) -> gpui_kit::Div {
         .flex()
         .flex_col()
         .gap_1()
-        .child(div().text_size(px(18.0)).text_color(hsla(color::TEXT)).font_weight(gpui_kit::FontWeight::SEMIBOLD).child(section.name()))
+        .child(div().text_size(px(size::PAGE_TITLE_TEXT)).text_color(hsla(color::TEXT)).font_weight(gpui_kit::FontWeight::SEMIBOLD).child(section.name()))
         .child(div().text_size(px(size::TEXT)).text_color(hsla(color::MUTED)).child(section.about()))
 }
 
@@ -183,7 +183,7 @@ fn setting(name: impl Into<SharedString>, about: impl Into<SharedString>, contro
                 .flex()
                 .flex_col()
                 .gap_0p5()
-                .child(div().text_size(px(size::TEXT + 1.0)).text_color(hsla(color::TEXT)).child(name.into()))
+                .child(div().text_size(px(size::LARGE_TEXT)).text_color(hsla(color::TEXT)).child(name.into()))
                 .child(div().text_size(px(size::SMALL_TEXT)).text_color(hsla(color::MUTED)).child(about.into())),
         )
         .child(div().flex_none().flex().items_center().gap_1p5().child(control))
@@ -201,7 +201,7 @@ fn switch(id: &'static str, on: bool, shown: &SharedShown, workspace: &WeakEntit
 fn menu<T: Clone + PartialEq + 'static>(id: &'static str, choices: Vec<(String, T)>, current: T, shown: &SharedShown, workspace: &WeakEntity<Workspace>, set: fn(&mut AppSettings, T)) -> impl IntoElement {
     let label = choices.iter().find(|(_, value)| *value == current).map_or_else(|| "Custom".to_owned(), |(label, _)| label.clone());
     let (shown, workspace) = (shown.clone(), workspace.clone());
-    Button::new(id).outline().small().label(label).dropdown_caret(true).dropdown_menu(move |menu, _, _| {
+    crate::panels::chrome::dropdown(id, label).dropdown_menu(move |menu, _, _| {
         choices.iter().fold(menu, |menu, (label, value)| {
             let (shown, workspace, value) = (shown.clone(), workspace.clone(), value.clone());
             let checked = value == current;
@@ -821,7 +821,7 @@ fn section_menu(shown: &SharedShown) -> gpui_kit::Div {
             .gap_2()
             .rounded(px(6.0))
             .cursor_pointer()
-            .text_size(px(size::TEXT + 0.5))
+            .text_size(px(size::LARGE_TEXT))
             .text_color(hsla(if selected { color::TEXT } else { color::MUTED }))
             .when(selected, |item| item.bg(hsla(color::ROW_SELECTED)))
             .hover(|style| style.bg(hsla(color::HOVER)).text_color(hsla(color::TEXT)))

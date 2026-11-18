@@ -491,7 +491,7 @@ fn area_color(area: Area) -> u32 {
 /// The small colored label saying which area a suggestion is about.
 fn area_tag(area: Area) -> impl IntoElement {
     let tint = gpui_kit::rgb(area_color(area));
-    div().flex_none().px_1p5().rounded_full().bg(gpui_kit::Hsla::from(tint).opacity(0.18)).text_size(px(10.5)).text_color(tint).child(area.name())
+    div().flex_none().px_1p5().rounded_full().bg(gpui_kit::Hsla::from(tint).opacity(0.18)).text_size(px(size::CAPTION_TEXT)).text_color(tint).child(area.name())
 }
 
 /// What Iris says above its list.
@@ -557,7 +557,7 @@ fn card(index: usize, suggestion: Suggestion, workspace: &Workspace, cx: &mut Co
         .child(div().font_weight(gpui_kit::FontWeight::MEDIUM).child(suggestion.title))
         .child(div().text_size(px(size::SMALL_TEXT)).text_color(hsla(color::MUTED)).child(suggestion.detail))
         // What was measured, so the suggestion can be judged rather than taken on trust.
-        .child(div().text_size(px(10.5)).text_color(hsla(color::MUTED)).opacity(0.75).child(suggestion.evidence))
+        .child(div().text_size(px(size::CAPTION_TEXT)).text_color(hsla(color::MUTED)).opacity(0.75).child(suggestion.evidence))
         // And what the fix would set, in full (the button stays short).
         .children(suggestion.fix.as_ref().map(|found| div().text_size(px(size::SMALL_TEXT)).text_color(hsla(color::TEXT)).child(format!("Fix: {}", found.summary()))))
         .child(div().pt_1().flex().flex_wrap().items_center().gap_1p5().children(fix_button).children(clipping).child(div().flex_1()).child(dismiss))

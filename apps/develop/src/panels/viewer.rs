@@ -584,7 +584,7 @@ fn options_bar(workspace: &Workspace, cx: &mut Context<Workspace>) -> Option<Any
     workspace.state.photo()?;
     let hint = |text: &'static str| div().text_color(hsla(color::MUTED)).truncate().child(text);
     let bar = div().h(px(36.0)).flex_none().flex().items_center().gap_2().px_2p5().border_b_1().border_color(hsla(color::HAIRLINE)).text_size(px(size::SMALL_TEXT));
-    let done = Button::new("tool-done").primary().xsmall().label("Done").on_click(cx.listener(|this, _, _, cx| {
+    let done = Button::new("tool-done").primary().small().label("Done").on_click(cx.listener(|this, _, _, cx| {
         this.state.set_tool(Tool::View);
         cx.notify();
     }));
@@ -593,7 +593,7 @@ fn options_bar(workspace: &Workspace, cx: &mut Context<Workspace>) -> Option<Any
         Tool::Crop => {
             let current = workspace.state.crop_aspect;
             let target = cx.weak_entity();
-            let aspect = Button::new("crop-aspect").outline().xsmall().label(ASPECTS[current].0).dropdown_caret(true).tooltip("Hold the crop to a shape").dropdown_menu(move |menu, _, _| {
+            let aspect = crate::panels::chrome::dropdown("crop-aspect", ASPECTS[current].0).tooltip("Hold the crop to a shape").dropdown_menu(move |menu, _, _| {
                 ASPECTS.iter().enumerate().fold(menu, |menu, (index, (name, _))| {
                     let target = target.clone();
                     menu.item(PopupMenuItem::new(*name).checked(index == current).on_click(move |_, _, cx| {
@@ -615,7 +615,7 @@ fn options_bar(workspace: &Workspace, cx: &mut Context<Workspace>) -> Option<Any
                 .child(div().w(px(10.0)))
                 .child(div().text_color(hsla(color::MUTED)).child("Angle"))
                 .child(value_field(FieldTarget::CropAngle, workspace, cx))
-                .child(Button::new("crop-level").outline().xsmall().label("Level").tooltip("Straighten by the photo's own horizon or uprights, when they are clear").on_click(cx.listener(|_, _, window, cx| {
+                .child(Button::new("crop-level").outline().small().label("Level").tooltip("Straighten by the photo's own horizon or uprights, when they are clear").on_click(cx.listener(|_, _, window, cx| {
                     window.dispatch_action(Box::new(crate::workspace::LevelPhoto), cx);
                 })))
                 .child(icon_button("crop-rotate-left", IconName::RotateCcw, crate::keymap::with_key("Rotate Left", "rotate-left"), false, cx.listener(|this, _, _, cx| {
@@ -635,7 +635,7 @@ fn options_bar(workspace: &Workspace, cx: &mut Context<Workspace>) -> Option<Any
                     cx.notify();
                 })))
                 .child(div().flex_1().min_w_0().child(hint("Drag corners to crop · drag outside to straighten (⇧ in whole degrees)")))
-                .child(Button::new("crop-reset").ghost().xsmall().label("Reset").on_click(cx.listener(|this, _, _, cx| {
+                .child(Button::new("crop-reset").ghost().small().label("Reset").on_click(cx.listener(|this, _, _, cx| {
                     this.state.reset_crop();
                     cx.notify();
                 })))
@@ -656,8 +656,6 @@ fn options_bar(workspace: &Workspace, cx: &mut Context<Workspace>) -> Option<Any
 
 /// The bar under the photo: zoom, the result's size, the comparison and the backdrop.
 fn status_bar(workspace: &Workspace, cx: &mut Context<Workspace>) -> impl IntoElement + use<> {
-    use gpui_kit::component::Sizable as _;
-    use gpui_kit::component::button::{Button, ButtonVariants as _};
     use gpui_kit::component::menu::{DropdownMenu as _, PopupMenuItem};
     let s = scale(workspace);
     let label = match workspace.ui.viewer.zoom {
@@ -665,7 +663,7 @@ fn status_bar(workspace: &Workspace, cx: &mut Context<Workspace>) -> impl IntoEl
         Some(zoom) => format!("{}%", (zoom * 100.0 * 10.0).round() / 10.0),
     };
     let target = cx.weak_entity();
-    let zoom_menu = Button::new("viewer-zoom").ghost().xsmall().label(label).dropdown_caret(true).dropdown_menu(move |menu, _, _| {
+    let zoom_menu = crate::panels::chrome::bar_dropdown("viewer-zoom", label).dropdown_menu(move |menu, _, _| {
         std::iter::once(None).chain([0.25f32, 0.5, 1.0, 2.0, 4.0].into_iter().map(Some)).fold(menu, |menu, zoom| {
             let target = target.clone();
             let name = zoom.map_or_else(|| "Fit on Screen".to_owned(), |zoom| format!("{}%", (zoom * 100.0).round()));
@@ -681,7 +679,7 @@ fn status_bar(workspace: &Workspace, cx: &mut Context<Workspace>) -> impl IntoEl
     });
     let current = workspace.ui.settings.backdrop;
     let target = cx.weak_entity();
-    let backdrop = Button::new("viewer-backdrop").ghost().xsmall().label(current.name()).dropdown_caret(true).tooltip("What shows around the photo").dropdown_menu(move |menu, _, _| {
+    let backdrop = crate::panels::chrome::bar_dropdown("viewer-backdrop", current.name()).tooltip("What shows around the photo").dropdown_menu(move |menu, _, _| {
         crate::app_settings::Backdrop::ALL.into_iter().fold(menu, |menu, choice| {
             let target = target.clone();
             menu.item(PopupMenuItem::new(choice.name()).checked(choice == current).on_click(move |_, _, cx| {

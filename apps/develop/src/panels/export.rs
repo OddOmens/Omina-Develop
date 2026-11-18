@@ -362,7 +362,7 @@ pub fn open_with(workspace: &mut Workspace, choices: ExportChoices, window: &mut
         // The presets: one picked sets the choices below for this photo.
         let presets = {
             let choices = choices.clone();
-            Button::new("export-preset").outline().small().label("Choose…").dropdown_caret(true).dropdown_menu(move |menu, _, _| {
+            crate::panels::chrome::dropdown("export-preset", "Choose…").dropdown_menu(move |menu, _, _| {
                 all_presets().into_iter().filter_map(|preset| Some((preset.name.clone(), preset_choices(&preset)?))).fold(menu, |menu, (name, picked)| {
                     let choices = choices.clone();
                     menu.item(gpui_kit::component::menu::PopupMenuItem::new(format!("{name}: {}", picked.described())).on_click(move |_, window, _| {

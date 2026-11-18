@@ -154,7 +154,7 @@ fn top_bar(photo_open: bool, cx: &mut Context<Workspace>) -> impl IntoElement {
         .bg(hsla(color::PANEL))
         .border_b_1()
         .border_color(hsla(color::HAIRLINE))
-        .child(div().flex().items_center().gap_2().child(brand_mark(30.0)).child(div().text_size(px(16.0)).font_weight(gpui_kit::FontWeight::SEMIBOLD).child("Omina Develop")))
+        .child(div().flex().items_center().gap_2().child(brand_mark(30.0)).child(div().text_size(px(size::TITLE_TEXT)).font_weight(gpui_kit::FontWeight::SEMIBOLD).child("Omina Develop")))
         .children(close)
 }
 
@@ -163,7 +163,7 @@ const RECENT_SHOWN: usize = 8;
 
 /// A section's title on the Home page.
 fn section_title(title: &'static str) -> gpui_kit::Div {
-    div().text_size(px(20.0)).font_weight(gpui_kit::FontWeight::BOLD).child(title)
+    div().text_size(px(size::PAGE_TITLE_TEXT)).font_weight(gpui_kit::FontWeight::BOLD).child(title)
 }
 
 /// The recent projects still on disk whose name or folder contains `filter` (any case).
@@ -287,7 +287,7 @@ fn hero_action(id: &'static str, icon: IconName, label: &'static str, on_click: 
         .hover(|style| style.bg(hsla(color::ACCENT).opacity(0.28)).border_color(hsla(color::ACCENT)))
         .on_click(cx.listener(move |this, _, window, cx| on_click(this, window, cx)))
         .child(Icon::new(icon).size(px(20.0)))
-        .child(div().text_size(px(14.0)).font_weight(gpui_kit::FontWeight::SEMIBOLD).child(label))
+        .child(div().text_size(px(size::HEADING_TEXT)).font_weight(gpui_kit::FontWeight::SEMIBOLD).child(label))
         .test_support()
 }
 
@@ -333,8 +333,8 @@ fn hero(recent: usize, photo_open: bool, cx: &mut Context<Workspace>) -> impl In
                 .items_center()
                 .justify_center()
                 .gap_2()
-                .child(div().text_size(px(52.0)).line_height(px(60.0)).font_weight(gpui_kit::FontWeight::BOLD).child(title))
-                .child(div().text_size(px(16.0)).text_color(hsla(color::TEXT)).opacity(0.8).child(about))
+                .child(div().text_size(px(size::HERO_TEXT)).line_height(px(60.0)).font_weight(gpui_kit::FontWeight::BOLD).child(title))
+                .child(div().text_size(px(size::TITLE_TEXT)).text_color(hsla(color::TEXT)).opacity(0.8).child(about))
                 .child(div().pt_5().child(tray)),
         )
         .test_support()
