@@ -98,10 +98,13 @@ fn contents(folder: &Path, open: &[PathBuf]) -> std::io::Result<Contents> {
     let mut files: Vec<PathBuf> = std::fs::read_dir(folder)?.filter_map(Result::ok).map(|entry| entry.path()).filter(|path| path.is_file()).collect();
     files.sort();
     let mut found = Contents::default();
-    let project_of = |path: &Path| path.with_extension(EXTENSION);
+    // A photo's project beside it, saved with the current extension or an older one.
+    let has_project = |path: &Path| {
+        std::iter::once(EXTENSION).chain(develop_core::file::OLDER_EXTENSIONS.iter().copied()).any(|extension| path.with_extension(extension).is_file())
+    };
     for path in files {
         let hidden = path.file_name().is_some_and(|name| name.to_string_lossy().starts_with('.'));
-        let project = path.extension().is_some_and(|extension| extension.eq_ignore_ascii_case(EXTENSION));
+        let project = develop_core::file::is_project_path(&path);
         if hidden {
             continue;
         }
@@ -109,7 +112,7 @@ fn contents(folder: &Path, open: &[PathBuf]) -> std::io::Result<Contents> {
             found.not_photos += 1;
             continue;
         }
-        if !project && project_of(&path).is_file() {
+        if !project && has_project(&path) {
             found.with_projects += 1;
             continue;
         }
@@ -397,12 +400,13 @@ mod tests {
         let folder = std::env::temp_dir().join(format!("develop-folder-contents-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&folder);
         std::fs::create_dir_all(folder.join("Inside")).unwrap();
-        for name in ["b.jpg", "a.png", "c.develop", "c.jpg", "notes.txt", ".hidden.jpg", "Inside/deep.jpg", "open.jpg"] {
+        // c has a project saved before .omid (.develop), d one saved since: both stand for their photos.
+        for name in ["b.jpg", "a.png", "c.develop", "c.jpg", "d.omid", "d.jpg", "notes.txt", ".hidden.jpg", "Inside/deep.jpg", "open.jpg"] {
             std::fs::write(folder.join(name), b"").unwrap();
         }
         let found = contents(&folder, &[folder.join("open.jpg")]).unwrap();
-        assert_eq!(found.items, vec![Item::Picture(folder.join("a.png")), Item::Picture(folder.join("b.jpg")), Item::Project(folder.join("c.develop"))]);
-        assert_eq!((found.not_photos, found.with_projects, found.open), (1, 1, vec!["open.jpg".to_owned()]));
+        assert_eq!(found.items, vec![Item::Picture(folder.join("a.png")), Item::Picture(folder.join("b.jpg")), Item::Project(folder.join("c.develop")), Item::Project(folder.join("d.omid"))]);
+        assert_eq!((found.not_photos, found.with_projects, found.open), (1, 2, vec!["open.jpg".to_owned()]));
         assert_eq!(expanded("~/Pictures"), PathBuf::from(std::env::var("HOME").unwrap()).join("Pictures"));
         assert!(asks_to_stop("Stop!") && asks_to_stop("cancel") && !asks_to_stop("stop the vignette"));
         std::fs::remove_dir_all(&folder).unwrap();

@@ -17,8 +17,19 @@ use crate::photo::{MAX_SNAPSHOTS, Photo, Snapshot, Source, sanitize};
 /// The file format's version. Files from a newer version are refused rather than misread.
 pub const FORMAT_VERSION: u32 = 1;
 
-/// The extension of project files.
-pub const EXTENSION: &str = "develop";
+/// The extension of project files: Omina Develop's own, so double-clicking one opens Develop.
+pub const EXTENSION: &str = "omid";
+
+/// Extensions projects were saved with before, still opened (and still listed with macOS as this app's), so
+/// existing projects keep working. New projects are always saved with `EXTENSION`.
+pub const OLDER_EXTENSIONS: &[&str] = &["develop"];
+
+/// Whether a path names a project file, by its extension (new or older, any letter case).
+pub fn is_project_path(path: &std::path::Path) -> bool {
+    path.extension().and_then(|extension| extension.to_str()).is_some_and(|extension| {
+        extension.eq_ignore_ascii_case(EXTENSION) || OLDER_EXTENSIONS.iter().any(|older| extension.eq_ignore_ascii_case(older))
+    })
+}
 
 /// The name the format is marked with inside the file.
 const FORMAT_NAME: &str = "develop";
@@ -245,5 +256,20 @@ mod tests {
         assert_eq!((preview.width, preview.height), (PREVIEW_SIDE, PREVIEW_SIDE / 2));
         assert_eq!(load(&path).unwrap().edit, photo.edit);
         std::fs::remove_dir_all(&folder).unwrap();
+    }
+}
+
+#[cfg(test)]
+mod extension_tests {
+    use super::*;
+    use std::path::Path;
+
+    #[test]
+    fn new_and_older_project_files_are_both_projects() {
+        assert!(is_project_path(Path::new("/tmp/Poster.omid")));
+        assert!(is_project_path(Path::new("/tmp/POSTER.OMID")), "letter case doesn't matter");
+        assert!(is_project_path(Path::new("/tmp/Poster.develop")), "projects saved before .omid still open");
+        assert!(!is_project_path(Path::new("/tmp/Poster.png")));
+        assert!(!is_project_path(Path::new("/tmp/Poster")));
     }
 }

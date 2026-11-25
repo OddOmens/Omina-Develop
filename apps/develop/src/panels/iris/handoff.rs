@@ -80,7 +80,7 @@ pub fn receive(workspace: &mut Workspace, window: &mut Window, cx: &mut Context<
         return;
     }
     for package in packages {
-        let (opened, other): (Vec<PathBuf>, Vec<PathBuf>) = package.files.into_iter().partition(|file| develop_core::image_io::is_picture(file) || file.extension().is_some_and(|extension| extension == develop_core::file::EXTENSION));
+        let (opened, other): (Vec<PathBuf>, Vec<PathBuf>) = package.files.into_iter().partition(|file| develop_core::image_io::is_picture(file) || develop_core::file::is_project_path(file));
         let mut text = format!("From {}: {}.", package.from.name(), package.title);
         if !opened.is_empty() {
             text.push_str(&format!(" Opening {} as a new photo tab.", if opened.len() == 1 { "it".to_owned() } else { format!("its {} pictures each", opened.len()) }));

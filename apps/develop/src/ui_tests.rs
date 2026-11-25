@@ -1375,7 +1375,7 @@ fn a_folder_of_photos_is_edited_and_exported_without_opening_them(cx: &mut TestA
     // It asks first, saying how many, what, and that Undo can't take it back.
     let said = tell(&workspace, visual, &format!("auto every photo in {}", folder.display()));
     assert!(said.contains("make “auto” on each") && said.contains("3 photos") && said.contains("1 file that isn't one of the photos") && said.contains("Undo can't take this back") && said.contains("Go ahead?"), "{said}");
-    assert!(!folder.join("a.develop").exists(), "nothing before the yes");
+    assert!(!folder.join("a.omid").exists(), "nothing before the yes");
     tell(&workspace, visual, "Yes, do all 3");
     visual.run_until_parked();
     render(visual);
@@ -1383,7 +1383,7 @@ fn a_folder_of_photos_is_edited_and_exported_without_opening_them(cx: &mut TestA
     assert!(said.starts_with("Done: 3 of 3 photos") && said.contains("3 new projects"), "{said}");
     for (path, original) in pictures.iter().zip(&originals) {
         assert_eq!(&std::fs::read(path).unwrap(), original, "the photo itself is never written to");
-        let project = develop_core::file::load(&path.with_extension("develop")).unwrap();
+        let project = develop_core::file::load(&path.with_extension(develop_core::file::EXTENSION)).unwrap();
         assert_ne!(project.edit.develop.exposure, 0.0, "Auto was made and kept in the project");
     }
     // Again: each photo's project is used, saved with the change, and exported.
@@ -1396,14 +1396,14 @@ fn a_folder_of_photos_is_edited_and_exported_without_opening_them(cx: &mut TestA
     let mut written: Vec<String> = std::fs::read_dir(&exports).unwrap().map(|entry| entry.unwrap().file_name().to_string_lossy().into_owned()).collect();
     written.sort();
     assert_eq!(written, vec!["a.jpg", "b.jpg", "c.jpg"]);
-    let project = develop_core::file::load(&folder.join("b.develop")).unwrap();
+    let project = develop_core::file::load(&folder.join("b.omid")).unwrap();
     assert!(project.edit.develop.exposure != 0.0 && project.edit.develop.saturation == -100.0, "the earlier edit stays, with the new one on it");
     // Export only writes no projects; a request that can't be made on a closed photo is refused.
-    let projects_before = std::fs::read(folder.join("a.develop")).unwrap();
+    let projects_before = std::fs::read(folder.join("a.omid")).unwrap();
     tell(&workspace, visual, &format!("export everything in {} as png", folder.display()));
     tell(&workspace, visual, "yes");
     visual.run_until_parked();
-    assert_eq!(std::fs::read(folder.join("a.develop")).unwrap(), projects_before);
+    assert_eq!(std::fs::read(folder.join("a.omid")).unwrap(), projects_before);
     assert!(exports.join("a.png").exists());
     assert!(tell(&workspace, visual, &format!("next photo for every photo in {}", folder.display())).contains("can't do “next photo”"));
     assert!(tell(&workspace, visual, "auto every photo in ~/No Such Folder Here").starts_with("There's no folder at"));

@@ -12,6 +12,7 @@ use gpui_kit::{AppContext as _, Context, PromptButton, PromptLevel, Window};
 
 use crate::app_settings;
 use crate::workspace::Workspace;
+use gpui_kit::component::WindowExt as _;
 
 /// Something to do once a save (or the decision not to) is done.
 pub type Then = Box<dyn FnOnce(&mut Workspace, &mut Window, &mut Context<Workspace>)>;
@@ -26,12 +27,18 @@ fn starting_folder(workspace: &Workspace) -> PathBuf {
         .unwrap_or_else(|| std::env::var_os("HOME").map(PathBuf::from).unwrap_or_default().join("Pictures"))
 }
 
-/// What happens when Develop starts (see `Workspace::launch`), with the files named on the
-/// command line (`develop a.jpg b.jpg`). (Headless tests never launch, so they don't call it.)
+/// What happens when Develop starts (see `Workspace::launch`), with the files the system
+/// handed over: double-clicked, or named on the command line (`develop a.jpg b.jpg`).
+/// (Headless tests never launch, so they don't call it.)
 #[cfg_attr(test, allow(dead_code))]
 pub fn on_launch(workspace: &mut Workspace, window: &mut Window, cx: &mut Context<Workspace>) {
-    let named: Vec<PathBuf> = std::env::args_os().skip(1).map(PathBuf::from).filter(|path| path.exists()).collect();
+    let named = crate::opened_files::take_at_launch();
     workspace.launch(named, window, cx);
+}
+
+/// Opens the files the system hands over once Develop is running, each in a tab of its own.
+pub fn open_handed_over(workspace: &mut Workspace, paths: Vec<PathBuf>, window: &mut Window, cx: &mut Context<Workspace>) {
+    workspace.open_paths(paths, window, cx);
 }
 
 pub fn show_error(window: &mut Window, cx: &mut Context<Workspace>, title: &'static str, error: String) {
@@ -40,7 +47,7 @@ pub fn show_error(window: &mut Window, cx: &mut Context<Workspace>, title: &'sta
 
 /// Whether a path names a Develop project (rather than a photo).
 fn is_project(path: &Path) -> bool {
-    path.extension().is_some_and(|ext| ext.eq_ignore_ascii_case(EXTENSION))
+    develop_core::file::is_project_path(path)
 }
 
 /// Reads a photo or a project into a photo. Returns it and whether it was a project (which
@@ -164,6 +171,9 @@ impl Workspace {
                     let folder = folder.to_path_buf();
                     app_settings::update(|settings| settings.last_folder = Some(folder));
                 }
+                // A brief notice, so a save (⌘S especially) is seen to have worked.
+                let name = path.file_name().map_or_else(|| path.display().to_string(), |name| name.to_string_lossy().into_owned());
+                window.push_notification(format!("Saved “{name}”").as_str(), cx);
                 crate::workspace::refresh_menus(cx);
                 cx.notify();
                 true

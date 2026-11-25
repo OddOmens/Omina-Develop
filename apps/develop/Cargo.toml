@@ -9,6 +9,8 @@ license.workspace = true
 authors.workspace = true
 
 [dependencies]
+# The channel that hands files the system asks to open over to the window.
+futures = "0.3"
 develop-core.workspace = true
 iris.workspace = true
 gpui-kit.workspace = true
@@ -31,10 +33,22 @@ icons = ["../../assets/icon/develop-512@2x.png", "../../assets/icon/develop-512.
 out-dir = "../../target/packages"
 binaries-dir = "../../target/release"
 binaries = [{ path = "develop", main = true }]
-resources = ["../../LICENSE"]
+resources = ["../../LICENSE", "../../assets/icon/omid-document.icns"]
+
+# Double-clicking a project opens it in Omina Develop. Windows and Linux installers register this;
+# on macOS, Info.plist declares the file type in full (it replaces what this would write).
+# Projects are .omid; .develop is the older extension, still opened.
+[[package.metadata.packager.file-associations]]
+extensions = ["omid", "develop"]
+name = "Omina Develop Project"
+description = "Omina Develop Project"
+mime-type = "application/x-omina-develop"
+role = "editor"
 
 [package.metadata.packager.macos]
 minimum-system-version = "13.0"
+# Extra Info.plist keys: the project file type this app opens.
+info-plist-path = "Info.plist"
 
 [lints]
 workspace = true

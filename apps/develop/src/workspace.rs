@@ -537,6 +537,8 @@ impl Workspace {
         // The start screen shows first, unless Settings asks to reopen the last project.
         #[cfg(not(test))]
         cx.defer_in(window, crate::project_files::on_launch);
+        // Files double-clicked in Finder while Develop is running open as they arrive.
+        crate::opened_files::watch(window, cx, crate::project_files::open_handed_over);
         // Unsaved photos are copied aside as often as Settings says, and once more if the app
         // quits without asking about them (see `recovery`). (Not in headless tests, which call
         // these themselves.)
